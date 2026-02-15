@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ShopSettings, Language, Staff, DiscountCode } from '../types';
-import { CURRENCY_OPTIONS, TRANSLATIONS } from '../constants';
+import { CURRENCY_OPTIONS, TRANSLATIONS, COUNTRY_CODES } from '../constants';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface SettingsProps {
@@ -155,6 +155,19 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings, current
             </div>
 
             <div>
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2 ml-1">{t.defaultCountryCode}</label>
+                <select 
+                    value={formData.defaultCountryCode || '+1'}
+                    onChange={e => setFormData({...formData, defaultCountryCode: e.target.value})}
+                    className="w-full bg-slate-50 dark:bg-slate-800 border-0 rounded-2xl px-5 py-3.5 focus:ring-4 focus:ring-amber-500/10 outline-none text-sm font-bold dark:text-slate-200"
+                >
+                    {COUNTRY_CODES.map(c => (
+                        <option key={c.code} value={c.code}>{c.flag} {c.country} ({c.code})</option>
+                    ))}
+                </select>
+            </div>
+
+            <div>
               <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2 ml-1">{t.taxCalculation}</label>
               <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-2xl border border-slate-100 dark:border-slate-700">
                 <button 
@@ -190,7 +203,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings, current
               </div>
             </div>
 
-            <div className="md:col-span-1">
+            <div className="md:col-span-2">
               <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2 ml-1">{t.receiptFooter}</label>
               <textarea 
                 value={formData.receiptFooter}

@@ -13,6 +13,28 @@ export const CURRENCY_OPTIONS = [
   { label: 'Australian Dollar (A$)', symbol: 'A$' },
 ];
 
+export const COUNTRY_CODES = [
+  { code: '+1', country: 'USA/Canada', flag: '🇺🇸' },
+  { code: '+44', country: 'UK', flag: '🇬🇧' },
+  { code: '+92', country: 'Pakistan', flag: '🇵🇰' },
+  { code: '+91', country: 'India', flag: '🇮🇳' },
+  { code: '+971', country: 'UAE', flag: '🇦🇪' },
+  { code: '+966', country: 'Saudi Arabia', flag: '🇸🇦' },
+  { code: '+98', country: 'Iran', flag: '🇮🇷' },
+  { code: '+33', country: 'France', flag: '🇫🇷' },
+  { code: '+49', country: 'Germany', flag: '🇩🇪' },
+  { code: '+39', country: 'Italy', flag: '🇮🇹' },
+  { code: '+34', country: 'Spain', flag: '🇪🇸' },
+  { code: '+61', country: 'Australia', flag: '🇦🇺' },
+  { code: '+86', country: 'China', flag: '🇨🇳' },
+  { code: '+81', country: 'Japan', flag: '🇯🇵' },
+  { code: '+55', country: 'Brazil', flag: '🇧🇷' },
+  { code: '+52', country: 'Mexico', flag: '🇲🇽' },
+  { code: '+7', country: 'Russia', flag: '🇷🇺' },
+  { code: '+90', country: 'Turkey', flag: '🇹🇷' },
+  { code: '+20', country: 'Egypt', flag: '🇪🇬' }
+];
+
 export const INITIAL_DISCOUNT_CODES: DiscountCode[] = [
   { code: 'WELCOME10', type: 'percentage', value: 10, description: '10% off for new customers' },
   { code: 'VIP20', type: 'percentage', value: 20, description: '20% off for VIP members' },
@@ -24,6 +46,7 @@ export const DEFAULT_SETTINGS: ShopSettings = {
   location: '',
   currency: '$',
   language: 'en',
+  defaultCountryCode: '+1',
   whatsappEnabled: true,
   whatsappNumber: '',
   receiptFooter: 'Thank you for choosing us!',
@@ -206,6 +229,7 @@ export const TRANSLATIONS = {
     terminalIdentity: 'Terminal Identity',
     language: 'Language',
     preferredCurrency: 'Preferred Currency',
+    defaultCountryCode: 'Default Country Code',
     taxCalculation: 'Tax Calculation',
     taxRate: 'Tax Rate (%)',
     receiptFooter: 'Receipt Footer',
@@ -242,6 +266,10 @@ export const TRANSLATIONS = {
     stayLoggedIn: 'Stay logged in for 30 days',
   },
   ur: {
+    // ... existing Urdu translations ...
+    // Added for country code
+    defaultCountryCode: 'پہلے سے طے شدہ ملک کا کوڈ',
+    // ... existing ...
     // Navigation
     dashboard: 'ڈیش بورڈ',
     pos: 'پوائنٹ آف سیل',
@@ -449,6 +477,9 @@ export const TRANSLATIONS = {
     stayLoggedIn: '30 دن تک لاگ ان رہیں',
   },
   fa: {
+    // ... existing Persian translations ...
+    defaultCountryCode: 'کد کشور پیش‌فرض',
+    // ... existing ...
     // Navigation
     dashboard: 'داشبورد',
     pos: 'پایانه فروش',
@@ -656,6 +687,9 @@ export const TRANSLATIONS = {
     stayLoggedIn: 'برای ۳۰ روز وارد بمانید',
   },
   hi: {
+    // ... existing Hindi translations ...
+    defaultCountryCode: 'डिफ़ॉल्ट देश कोड',
+    // ... existing ...
     // Navigation
     dashboard: 'डैशबोर्ड',
     pos: 'पीओएस टर्मिनल',
@@ -854,7 +888,7 @@ export const TRANSLATIONS = {
     percentage: 'प्रतिशत (%)',
 
     // Login
-    premiumAccess: 'प्रीमियम टर्मिनल एक्सेस',
+    premiumAccess: 'पریمियम टर्मिनल एक्सेस',
     securityKey: 'सुरक्षा कुंजी',
     enterDashboard: 'डैशबोर्ड दर्ज करें',
     authorizedUse: 'केवल अधिकृत उपयोग',

@@ -611,7 +611,7 @@ const renderView = (v: View, props: any) => {
     case View.DASHBOARD: return <Dashboard sales={sales} expenses={expenses} products={products} currency={settings.currency} language={sessionLanguage} onNavigate={setCurrentView} />;
     case View.POS: return <POS services={services} products={products} staff={staff} customers={customers} settings={settings} currentUser={currentUser} onCompleteSale={onCompleteSale} onAddCustomer={c => onUpdateCustomers([...customers, c])} />;
     case View.FINANCE: return <Finance sales={sales} expenses={expenses} staffList={staff} customers={customers} currency={settings.currency} language={sessionLanguage} currentUser={currentUser} onAddExpense={onAddExpense} onDeleteExpense={onDeleteExpense} onDeleteSales={onDeleteSales} settings={settings} />;
-    case View.CUSTOMERS: return <Customers customers={customers} sales={sales} onUpdateCustomers={onUpdateCustomers} currency={settings.currency} language={sessionLanguage} />;
+    case View.CUSTOMERS: return <Customers customers={customers} sales={sales} onUpdateCustomers={onUpdateCustomers} currency={settings.currency} language={sessionLanguage} defaultCountryCode={settings.defaultCountryCode} />;
     case View.INVENTORY: return <Inventory services={services} products={products} settings={{...settings, language: sessionLanguage}} onUpdateServices={onUpdateServices} onUpdateProducts={onUpdateProducts} />;
     case View.STAFF: return <StaffManagement staffList={staff} onUpdateStaff={onUpdateStaff} currentUser={currentUser} language={sessionLanguage} />;
     case View.SETTINGS: return <Settings settings={{...settings, language: sessionLanguage}} onUpdateSettings={onUpdateSettings} currentUser={currentUser} onLogout={onLogout} onPurgeSales={onPurgeSales} />;

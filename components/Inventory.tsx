@@ -320,10 +320,15 @@ const Inventory: React.FC<InventoryProps> = ({ services, products, settings, onU
       <AnimatePresence>
         {isScanning && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[200] flex items-center justify-center p-4">
-            <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden shadow-2xl relative">
-                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center"><h3 className="font-black text-slate-900 dark:text-white text-lg flex items-center gap-2">Scanner</h3><button onClick={() => setIsScanning(false)} className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
-                <div className="bg-black relative min-h-[300px] w-full overflow-hidden">
-                    <div id="reader-inventory" className="w-full h-full"></div>
+            <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden shadow-2xl relative flex flex-col max-h-[85dvh]">
+                <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center shrink-0">
+                    <h3 className="font-black text-slate-900 dark:text-white text-lg flex items-center gap-2">Scanner</h3>
+                    <button onClick={() => setIsScanning(false)} className="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 hover:text-rose-500 transition-colors">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                <div className="bg-black relative flex-1 min-h-[250px] w-full overflow-hidden">
+                    <div id="reader-inventory" className="w-full h-full object-cover"></div>
                 </div>
             </div>
           </motion.div>

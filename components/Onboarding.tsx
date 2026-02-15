@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { jsPDF } from 'jspdf';
 import { ShopSettings, Staff, Language, UserRole } from '../types';
-import { CURRENCY_OPTIONS, DEFAULT_SETTINGS } from '../constants';
+import { CURRENCY_OPTIONS, DEFAULT_SETTINGS, COUNTRY_CODES } from '../constants';
 import { supabase } from '../supabaseClient';
 
 interface OnboardingProps {
@@ -219,6 +220,18 @@ const Onboarding: React.FC<OnboardingProps> = ({ currentUser, onComplete, initia
                                         <option value="ur">Urdu (اردو)</option>
                                         <option value="fa">Persian (فارسی)</option>
                                         <option value="hi">Hindi (हिंदी)</option>
+                                    </select>
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 ml-1">Default Country Code</label>
+                                    <select 
+                                        value={settings.defaultCountryCode || '+1'}
+                                        onChange={e => setSettings({...settings, defaultCountryCode: e.target.value})}
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-amber-500/50 outline-none"
+                                    >
+                                        {COUNTRY_CODES.map(c => (
+                                            <option key={c.code} value={c.code}>{c.flag} {c.country} ({c.code})</option>
+                                        ))}
                                     </select>
                                 </div>
                             </div>

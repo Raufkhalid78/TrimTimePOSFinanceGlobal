@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { Customer, Sale, Language } from '../types';
-import { TRANSLATIONS } from '../constants';
+import { Customer, Sale, Language, ShopSettings } from '../types';
+import { TRANSLATIONS, COUNTRY_CODES } from '../constants';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CustomersProps {
@@ -10,9 +10,10 @@ interface CustomersProps {
   onUpdateCustomers: (customers: Customer[]) => void;
   currency: string;
   language: Language;
+  defaultCountryCode?: string;
 }
 
-const Customers: React.FC<CustomersProps> = ({ customers, sales, onUpdateCustomers, currency, language }) => {
+const Customers: React.FC<CustomersProps> = ({ customers, sales, onUpdateCustomers, currency, language, defaultCountryCode }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,7 +42,8 @@ const Customers: React.FC<CustomersProps> = ({ customers, sales, onUpdateCustome
 
   const handleOpenAdd = () => {
     setIsEditing(false);
-    setFormData({ name: '', phone: '', email: '', notes: '' });
+    // Pre-fill with default country code if available
+    setFormData({ name: '', phone: defaultCountryCode || '', email: '', notes: '' });
     setIsModalOpen(true);
   };
 
@@ -74,6 +76,24 @@ const Customers: React.FC<CustomersProps> = ({ customers, sales, onUpdateCustome
         onUpdateCustomers([...customers, newCustomer]);
      }
      setIsModalOpen(false);
+  };
+
+  const replaceCountryCode = (newCode: string) => {
+      // Logic: If phone starts with '+', remove old prefix and add new. Else just prepend.
+      const current = formData.phone;
+      let newPhone = current;
+      if (current.startsWith('+')) {
+          // Find where the first space or non-digit (after +) is to guess old code length, or just use regex
+          const match = current.match(/^(\+\d+)/);
+          if (match) {
+              newPhone = current.replace(match[1], newCode);
+          } else {
+              newPhone = newCode + current;
+          }
+      } else {
+          newPhone = newCode + current;
+      }
+      setFormData({ ...formData, phone: newPhone });
   };
 
   return (
@@ -289,13 +309,25 @@ const Customers: React.FC<CustomersProps> = ({ customers, sales, onUpdateCustome
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2 ml-1">{t.mobile}</label>
-                    <input 
-                      type="tel" 
-                      value={formData.phone}
-                      onChange={e => setFormData({...formData, phone: e.target.value})}
-                      placeholder=""
-                      className="w-full bg-slate-50 dark:bg-slate-800 border-0 rounded-2xl px-5 py-4 focus:ring-4 focus:ring-amber-500/10 outline-none text-sm font-bold dark:text-slate-200 shadow-sm" 
-                    />
+                    <div className="flex gap-2">
+                        <select 
+                            onChange={(e) => replaceCountryCode(e.target.value)}
+                            className="bg-slate-50 dark:bg-slate-800 border-0 rounded-2xl px-2 py-4 focus:ring-4 focus:ring-amber-500/10 outline-none text-sm font-bold dark:text-slate-200 shadow-sm w-16 appearance-none text-center"
+                            value="" // Always reset to show placeholder or icon
+                        >
+                            <option value="" disabled>🌐</option>
+                            {COUNTRY_CODES.map(c => (
+                                <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
+                            ))}
+                        </select>
+                        <input 
+                        type="tel" 
+                        value={formData.phone}
+                        onChange={e => setFormData({...formData, phone: e.target.value})}
+                        placeholder={defaultCountryCode}
+                        className="w-full bg-slate-50 dark:bg-slate-800 border-0 rounded-2xl px-5 py-4 focus:ring-4 focus:ring-amber-500/10 outline-none text-sm font-bold dark:text-slate-200 shadow-sm flex-1" 
+                        />
+                    </div>
                   </div>
                   <div>
                     <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2 ml-1">{t.email}</label>

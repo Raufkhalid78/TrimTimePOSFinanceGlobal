@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Service, Product, Staff, Sale, SaleItem, Customer, ShopSettings, HeldSale } from '../types';
-import { TRANSLATIONS } from '../constants';
+import { TRANSLATIONS, COUNTRY_CODES } from '../constants';
 import { jsPDF } from 'jspdf';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
@@ -59,6 +59,13 @@ const POS: React.FC<POSProps> = ({ services, products, staff, customers, setting
   useEffect(() => {
     localStorage.setItem('trimtime_held_sales', JSON.stringify(heldSales));
   }, [heldSales]);
+
+  // Set default phone code when opening modal
+  useEffect(() => {
+      if (isAddingCustomer && !newCustomerData.phone) {
+          setNewCustomerData(prev => ({...prev, phone: settings.defaultCountryCode || ''}));
+      }
+  }, [isAddingCustomer, settings.defaultCountryCode]);
 
   const activeCustomer = useMemo(() => customers.find(c => c.id === selectedCustomer), [selectedCustomer, customers]);
   const lastCustomer = useMemo(() => lastSale?.customerId ? customers.find(c => c.id === lastSale.customerId) : null, [lastSale, customers]);
@@ -466,6 +473,22 @@ const POS: React.FC<POSProps> = ({ services, products, staff, customers, setting
       return received - totals.total;
   }, [cashReceived, totals.total]);
 
+  const replaceCountryCode = (newCode: string) => {
+      const current = newCustomerData.phone;
+      let newPhone = current;
+      if (current.startsWith('+')) {
+          const match = current.match(/^(\+\d+)/);
+          if (match) {
+              newPhone = current.replace(match[1], newCode);
+          } else {
+              newPhone = newCode + current;
+          }
+      } else {
+          newPhone = newCode + current;
+      }
+      setNewCustomerData({ ...newCustomerData, phone: newPhone });
+  };
+
   return (
     <div className="flex flex-col lg:flex-row gap-6 h-full relative">
       {/* Held Sales Sidebar/Indicator (Optional for Desktop) */}
@@ -713,17 +736,17 @@ const POS: React.FC<POSProps> = ({ services, products, staff, customers, setting
       <AnimatePresence>
         {isScanning && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[200] flex items-center justify-center p-4">
-            <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden shadow-2xl relative">
-                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+            <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden shadow-2xl relative flex flex-col max-h-[85dvh]">
+                <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center shrink-0">
                     <h3 className="font-black text-slate-900 dark:text-white text-lg flex items-center gap-2">
                         <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
                         {t.scanner}
                     </h3>
-                    <button onClick={() => setIsScanning(false)} className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 hover:text-rose-500 transition-colors">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    <button onClick={() => setIsScanning(false)} className="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 hover:text-rose-500 transition-colors">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
-                <div className="bg-black relative min-h-[300px] w-full overflow-hidden">
+                <div className="bg-black relative flex-1 min-h-[250px] w-full overflow-hidden">
                     {/* Visual Glow Effect for Feedback */}
                     <AnimatePresence>
                         {scanningFeedback && (
@@ -736,7 +759,7 @@ const POS: React.FC<POSProps> = ({ services, products, staff, customers, setting
                         )}
                     </AnimatePresence>
 
-                    <div id="reader" className="w-full h-full"></div>
+                    <div id="reader" className="w-full h-full object-cover"></div>
                     
                     <AnimatePresence>
                         {scanningFeedback && (
@@ -761,7 +784,7 @@ const POS: React.FC<POSProps> = ({ services, products, staff, customers, setting
                         )}
                     </AnimatePresence>
                 </div>
-                <div className="p-4 text-center bg-slate-50 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                <div className="p-4 text-center bg-slate-50 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-500 shrink-0">
                     <p>{t.alignBarcode}</p>
                 </div>
             </div>
@@ -797,12 +820,24 @@ const POS: React.FC<POSProps> = ({ services, products, staff, customers, setting
                           </div>
                           <div>
                               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1.5 ml-1">{t.mobile}</label>
-                              <input 
-                                  value={newCustomerData.phone} 
-                                  onChange={e => setNewCustomerData({...newCustomerData, phone: e.target.value})}
-                                  className="w-full bg-slate-50 dark:bg-slate-800 border-0 rounded-2xl px-5 py-3 focus:ring-4 focus:ring-amber-500/10 outline-none font-bold dark:text-white"
-                                  placeholder="+1..."
-                              />
+                              <div className="flex gap-2">
+                                <select 
+                                    onChange={(e) => replaceCountryCode(e.target.value)}
+                                    className="bg-slate-50 dark:bg-slate-800 border-0 rounded-2xl px-2 py-3 focus:ring-4 focus:ring-amber-500/10 outline-none font-bold dark:text-white w-16 appearance-none text-center"
+                                    value=""
+                                >
+                                    <option value="" disabled>🌐</option>
+                                    {COUNTRY_CODES.map(c => (
+                                        <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
+                                    ))}
+                                </select>
+                                <input 
+                                    value={newCustomerData.phone} 
+                                    onChange={e => setNewCustomerData({...newCustomerData, phone: e.target.value})}
+                                    className="w-full bg-slate-50 dark:bg-slate-800 border-0 rounded-2xl px-5 py-3 focus:ring-4 focus:ring-amber-500/10 outline-none font-bold dark:text-white flex-1"
+                                    placeholder="+1..."
+                                />
+                              </div>
                           </div>
                           <div>
                               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1.5 ml-1">{t.email} ({t.optional})</label>
