@@ -59,19 +59,17 @@ const Login: React.FC<LoginProps> = ({ onLogin, shopName }) => {
       }
 
       if (!authResult.data.user) throw new Error('No user data returned');
+      const userId = authResult.data.user.id;
 
       // Auth successful. Now we need the Staff profile.
-      // 1. If SignUp, the DB trigger 'handle_new_user' creates the shop and the 'admin' staff.
-      // 2. We query the staff table. RLS ensures we only see staff for the shop we own.
-      
       // Poll for staff profile (handles DB trigger latency on signup)
-      // Retry up to 5 times with 1.5s delay for new accounts
-      const maxRetries = isSignUp ? 5 : 1;
+      // Retry up to 5 times to ensure we catch the trigger creation
+      const maxRetries = 5;
       let staffData = null;
       let retryCount = 0;
 
       while (!staffData && retryCount < maxRetries) {
-          if (retryCount > 0) await new Promise(r => setTimeout(r, 1500));
+          if (retryCount > 0) await new Promise(r => setTimeout(r, 1000));
 
           const { data, error } = await supabase
             .from('staff')
@@ -86,18 +84,88 @@ const Login: React.FC<LoginProps> = ({ onLogin, shopName }) => {
           retryCount++;
       }
       
+      // AUTO-REPAIR LOGIC
+      // If trigger failed or data is missing, attempt to self-repair the account
       if (!staffData) {
-         if (isSignUp) {
-             throw new Error("Account created, but setup is taking longer than expected. Please try logging in in a moment.");
-         } else {
-             // If login fails to find staff, check if shop exists (diagnostic)
-             const { data: shop } = await supabase.from('shops').select('id').eq('owner_id', authResult.data.user.id).maybeSingle();
+         console.log("Account incomplete. Attempting repair...");
+         
+         // 1. Check/Create Shop
+         let { data: shop } = await supabase.from('shops').select('id').eq('owner_id', userId).maybeSingle();
+         
+         if (!shop) {
+             // Attempt to create shop
+             const { data: newShop, error: shopError } = await supabase
+                .from('shops')
+                .insert([{ owner_id: userId, name: shopName || 'My Barber Shop' }])
+                .select()
+                .single();
              
-             if (!shop) {
-                 throw new Error("No shop found for this account. Please contact support.");
+             if (shopError) {
+                 console.error("Repair failed (Shop):", shopError);
+                 throw new Error("Unable to set up your shop data. Please contact support.");
              }
-             throw new Error("No staff profile found. If you are an employee, please use your Shop ID login.");
+             shop = newShop;
+
+             // Initialize defaults for new shop
+             if (shop) {
+                 await supabase.from('settings').insert({
+                     shop_id: shop.id,
+                     data: {
+                        shopName: shopName || "TrimTime", 
+                        currency: "$", 
+                        language: "en", 
+                        taxRate: 0, 
+                        taxType: "excluded", 
+                        whatsappEnabled: true,
+                        billingCycleDay: 1,
+                        promoCodes: []
+                     }
+                 });
+                 
+                 await supabase.from('services').insert([
+                    { id: 'svc_' + Math.random().toString(36).substr(2,9), shop_id: shop.id, name: 'Classic Haircut', price: 30, duration: 30, category: 'Hair' },
+                    { id: 'svc_' + Math.random().toString(36).substr(2,9), shop_id: shop.id, name: 'Beard Trim', price: 20, duration: 20, category: 'Beard' }
+                 ]);
+             }
          }
+         
+         // 2. Check/Create Admin Staff
+         if (shop) {
+             const { data: adminStaff } = await supabase
+                .from('staff')
+                .select('*')
+                .eq('shop_id', shop.id)
+                .eq('role', 'admin')
+                .maybeSingle();
+             
+             if (adminStaff) {
+                 staffData = adminStaff;
+             } else {
+                 const { data: newStaff, error: staffError } = await supabase
+                    .from('staff')
+                    .insert([{
+                        id: 'st_' + Math.random().toString(36).substr(2,9),
+                        shop_id: shop.id,
+                        name: 'Owner',
+                        role: 'admin',
+                        commission: 0,
+                        username: 'admin',
+                        password: '1234'
+                    }])
+                    .select()
+                    .single();
+                    
+                 if (staffError) {
+                     console.error("Repair failed (Staff):", staffError);
+                     throw new Error("Unable to create admin profile. Please contact support.");
+                 }
+                 staffData = newStaff;
+             }
+         }
+      }
+
+      if (!staffData) {
+         throw new Error("Account setup incomplete. If you are an employee, ask your admin for credentials.");
       }
 
       // Success
