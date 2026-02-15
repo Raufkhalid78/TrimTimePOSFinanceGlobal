@@ -7,8 +7,8 @@ const envKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY;
 
 // 2. Fallback Hardcoded Keys (REPLACE THESE IF NOT USING ENV VARS)
 // Go to Supabase Dashboard -> Settings -> API -> Project URL / Anon Public Key
-const FALLBACK_URL = 'https://YOUR_PROJECT_ID.supabase.co'; 
-const FALLBACK_KEY = 'YOUR_SUPABASE_ANON_KEY_STARTS_WITH_ey...';
+const FALLBACK_URL = 'https://fgsbumwbkrqaqngivqbw.supabase.co'; 
+const FALLBACK_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZnc2J1bXdia3JxYXFuZ2l2cWJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwOTU2ODgsImV4cCI6MjA4NjY3MTY4OH0.lZlWHFXSLIyQyg7EWlCueLxVB-Lv2xvOpkBvpY9rsao';
 
 const SUPABASE_URL = envUrl || FALLBACK_URL;
 const SUPABASE_ANON_KEY = envKey || FALLBACK_KEY;
