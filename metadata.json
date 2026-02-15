@@ -1,0 +1,7 @@
+{
+  "name": "TrimTime POS & Finance Global",
+  "description": "A comprehensive barbershop Point of Sale and Financial Management system featuring smart AI insights, receipt printing, and real-time performance analytics.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
