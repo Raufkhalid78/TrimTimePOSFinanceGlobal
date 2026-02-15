@@ -5,6 +5,7 @@ import { TRANSLATIONS } from '../constants';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../supabaseClient';
 import TermsOfService from './TermsOfService';
+import PricingPage from './PricingPage';
 
 interface LoginProps {
   onLogin: (user: Staff, rememberMe: boolean) => void;
@@ -14,6 +15,7 @@ interface LoginProps {
 
 const Login: React.FC<LoginProps> = ({ onLogin, shopName }) => {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -191,6 +193,18 @@ const Login: React.FC<LoginProps> = ({ onLogin, shopName }) => {
     }
   };
 
+  if (showPricing) {
+      return (
+          <PricingPage 
+            onBack={() => setShowPricing(false)} 
+            onStartTrial={() => {
+                setShowPricing(false);
+                setIsSignUp(true);
+            }} 
+          />
+      );
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 relative overflow-hidden">
       {/* Decorative Background Elements */}
@@ -205,7 +219,8 @@ const Login: React.FC<LoginProps> = ({ onLogin, shopName }) => {
         <div className="text-center mb-10">
           <motion.div 
             whileHover={{ rotate: 12, scale: 1.1 }}
-            className="w-20 h-20 bg-gradient-to-br from-amber-400 to-amber-600 rounded-[2rem] flex items-center justify-center font-brand text-4xl text-slate-950 mx-auto mb-6 shadow-2xl shadow-amber-500/40"
+            onClick={() => setShowPricing(true)}
+            className="w-20 h-20 bg-gradient-to-br from-amber-400 to-amber-600 rounded-[2rem] flex items-center justify-center font-brand text-4xl text-slate-950 mx-auto mb-6 shadow-2xl shadow-amber-500/40 cursor-pointer"
           >
             {(shopName || 'T').charAt(0)}
           </motion.div>
@@ -354,7 +369,11 @@ const Login: React.FC<LoginProps> = ({ onLogin, shopName }) => {
                 <div className="h-px bg-slate-800 flex-1"></div>
              </div>
              
-             <div className="pt-2">
+             <div className="pt-2 flex flex-col items-center gap-3">
+                 <button onClick={() => setShowPricing(true)} className="text-amber-500 hover:text-amber-400 font-black text-xs uppercase tracking-widest flex items-center gap-2 transition-colors">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    View Pricing Plans
+                 </button>
                  <button onClick={() => setShowTerms(true)} className="text-[10px] text-slate-500 hover:text-slate-400 font-bold uppercase tracking-widest transition-colors">
                     Terms of Service & Privacy
                  </button>
