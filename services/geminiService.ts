@@ -2,10 +2,10 @@
 import { GoogleGenAI } from "@google/genai";
 import { Sale, Expense } from "../types";
 
-// Always use process.env.API_KEY directly as a named parameter
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 export async function getFinancialInsights(sales: Sale[], expenses: Expense[]) {
+  // Initialize lazily to avoid crashing the app on load if env vars are missing
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
   // Using gemini-3-flash-preview for general business analysis tasks
   const model = 'gemini-3-flash-preview';
   

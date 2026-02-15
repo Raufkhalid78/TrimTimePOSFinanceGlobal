@@ -109,7 +109,7 @@
 </script>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-amber-100 selection:text-amber-900 dark:selection:bg-amber-900 dark:selection:text-amber-100 transition-colors duration-300 overflow-x-hidden">
-    <div id="root"></div>
+    <div id="root" class="h-full"></div>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -123,5 +123,6 @@
             });
         }
     </script>
+    <script type="module" src="/index.tsx"></script>
 </body>
 </html>

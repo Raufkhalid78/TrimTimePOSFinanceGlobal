@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, ReactNode, ErrorInfo } from 'react';
+import React, { useState, useEffect, ReactNode, ErrorInfo, Component } from 'react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import POS from './components/POS';
@@ -25,7 +24,7 @@ interface ErrorBoundaryState {
 }
 
 // Error Boundary to prevent white screens
-class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
@@ -490,7 +489,7 @@ const App: React.FC = () => {
         <main className="flex-1 overflow-y-auto p-4 md:p-8 relative scrollbar-hide">
           <AnimatePresence mode='wait'>
             <motion.div key={currentView} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="h-full">
-              <ErrorBoundary key={currentView}>
+              <ErrorBoundary key={String(currentView)}>
                 {renderView(currentView, { 
                   sales, expenses, products, services, staff, customers, settings, 
                   currentUser, sessionLanguage, isDarkMode, 
