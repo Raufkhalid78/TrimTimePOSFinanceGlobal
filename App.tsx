@@ -71,6 +71,7 @@ const App: React.FC = () => {
   const [subscriptionStatus, setSubscriptionStatus] = useState<string>('active');
   const [isOnboarding, setIsOnboarding] = useState(false);
   const [isSessionLoading, setIsSessionLoading] = useState(true);
+  const [configError, setConfigError] = useState(false);
 
   const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
   
@@ -143,6 +144,16 @@ const App: React.FC = () => {
     // Check initial session with timeout safety
     const checkSession = async () => {
         try {
+            // Basic URL check to fail fast if keys are placeholders
+            // @ts-ignore
+            const url = supabase.supabaseUrl || "";
+            // @ts-ignore
+            const key = supabase.supabaseKey || "";
+            
+            if (url.includes("YOUR_PROJECT_ID") || key.includes("YOUR_SUPABASE_ANON_KEY") || key.length < 20) {
+               throw new Error("Invalid Configuration");
+            }
+
             const { data: { session }, error } = await supabase.auth.getSession();
             if (error) throw error;
             
@@ -152,7 +163,8 @@ const App: React.FC = () => {
                 setIsSessionLoading(false);
             }
         } catch (err) {
-            console.warn("Supabase session check failed (likely due to missing/invalid keys):", err);
+            console.warn("Supabase connection failed:", err);
+            setConfigError(true);
             setIsSessionLoading(false);
         }
     };
@@ -465,6 +477,30 @@ const App: React.FC = () => {
   const handleSubscriptionSuccess = () => {
     setSubscriptionStatus('active');
   };
+
+  if (configError) {
+      return (
+          <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-950 p-8 text-center text-white">
+              <div className="w-20 h-20 bg-rose-500/20 text-rose-500 rounded-3xl flex items-center justify-center text-4xl mb-6 shadow-xl border border-rose-500/30">⚠️</div>
+              <h1 className="text-3xl font-black mb-4">Configuration Error</h1>
+              <p className="text-slate-400 max-w-md mb-8">The application cannot connect to the backend. This is usually due to missing or incorrect API keys.</p>
+              
+              <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 text-left w-full max-w-lg">
+                  <h3 className="text-sm font-bold text-slate-300 uppercase tracking-widest mb-3">How to Fix</h3>
+                  <ol className="list-decimal list-inside text-sm text-slate-400 space-y-2">
+                      <li>Go to <strong>Supabase Dashboard</strong> &rarr; Settings &rarr; API.</li>
+                      <li>Open <code>supabaseClient.ts</code> in your code.</li>
+                      <li>Replace <code>FALLBACK_URL</code> with your <strong>Project URL</strong>.</li>
+                      <li>Replace <code>FALLBACK_KEY</code> with your <strong>anon public</strong> key.</li>
+                  </ol>
+                  <div className="mt-4 p-3 bg-amber-500/10 text-amber-500 text-xs font-bold rounded-lg">
+                      Note: Supabase keys start with "ey..."
+                  </div>
+              </div>
+              <button onClick={() => window.location.reload()} className="mt-8 text-slate-500 hover:text-white font-bold transition-colors">Reload Page</button>
+          </div>
+      );
+  }
 
   if (isSessionLoading) return <div className="h-screen w-full flex items-center justify-center bg-slate-950"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-amber-500"></div></div>;
 
