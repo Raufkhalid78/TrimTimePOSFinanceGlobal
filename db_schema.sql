@@ -130,15 +130,13 @@ alter table expenses enable row level security;
 alter table settings enable row level security;
 
 -- Policy: SHOPS
--- Owners can only see/edit their own shop
+-- Owners can view, update, and INSERT their own shop (Vital for onboarding/repair)
 create policy "Users can view own shop" on shops for select using (owner_id = auth.uid());
 create policy "Users can update own shop" on shops for update using (owner_id = auth.uid());
+create policy "Users can create own shop" on shops for insert with check (owner_id = auth.uid());
 
 -- Policy: DATA TABLES
--- Users can only access data belonging to a shop they own
--- Note: In a production environment with millions of rows, consider using claims or a dedicated lookup function for performance.
--- For this scale, a subquery is perfectly fine and secure.
-
+-- Users can access data if they own the shop
 create policy "Owner access staff" on staff for all using (shop_id in (select id from shops where owner_id = auth.uid()));
 create policy "Owner access services" on services for all using (shop_id in (select id from shops where owner_id = auth.uid()));
 create policy "Owner access products" on products for all using (shop_id in (select id from shops where owner_id = auth.uid()));
@@ -177,7 +175,6 @@ begin
   }'::jsonb);
 
   -- 3. Create an initial Admin Staff profile (for the POS PIN login)
-  -- This allows the owner to log into the "App" immediately after signing up
   insert into public.staff (id, shop_id, name, role, commission, username, password)
   values (
     'st_' || substr(md5(random()::text), 0, 8), -- Random ID
@@ -189,7 +186,7 @@ begin
     '1234'
   );
   
-  -- 4. Add some default services so the catalog isn't empty
+  -- 4. Add some default services
   insert into public.services (id, shop_id, name, price, duration, category) values
   ('svc_' || substr(md5(random()::text), 0, 8), new_shop_id, 'Classic Haircut', 30, 30, 'Hair'),
   ('svc_' || substr(md5(random()::text), 0, 8), new_shop_id, 'Beard Trim', 20, 20, 'Beard');
@@ -199,7 +196,6 @@ end;
 $$ language plpgsql security definer;
 
 -- Bind the trigger to the auth.users table
--- This fires every time a user signs up via Supabase Auth
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users

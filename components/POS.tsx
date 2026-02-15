@@ -310,7 +310,7 @@ const POS: React.FC<POSProps> = ({ services, products, staff, customers, setting
     y += 6;
 
     // Meta
-    const dateStr = new Date(sale.timestamp).toLocaleString();
+    const dateStr = new Date(sale.timestamp).toLocaleDateString(settings.language, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     doc.text(dateStr, centerX, y, { align: 'center' });
     y += 4;
     doc.text(`Receipt #${sale.id.slice(0, 8)}`, centerX, y, { align: 'center' });
