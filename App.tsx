@@ -140,14 +140,35 @@ const App: React.FC = () => {
       }
     };
 
-    // Check initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-          restoreSession(session.user.id);
-      } else {
-          setIsSessionLoading(false);
-      }
-    });
+    // Check initial session with timeout safety
+    const checkSession = async () => {
+        try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error) throw error;
+            
+            if (session) {
+                await restoreSession(session.user.id);
+            } else {
+                setIsSessionLoading(false);
+            }
+        } catch (err) {
+            console.warn("Supabase session check failed (likely due to missing/invalid keys):", err);
+            setIsSessionLoading(false);
+        }
+    };
+
+    checkSession();
+
+    // Safety timeout to prevent infinite loading if Supabase hangs
+    const safetyTimer = setTimeout(() => {
+        setIsSessionLoading((loading) => {
+            if (loading) {
+                console.warn("Session check timed out, forcing login screen.");
+                return false;
+            }
+            return loading;
+        });
+    }, 5000);
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -161,7 +182,10 @@ const App: React.FC = () => {
         }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+        subscription.unsubscribe();
+        clearTimeout(safetyTimer);
+    };
   }, []);
 
   // Fetch data only when authenticated
