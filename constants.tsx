@@ -21,6 +21,7 @@ export const INITIAL_DISCOUNT_CODES: DiscountCode[] = [
 
 export const DEFAULT_SETTINGS: ShopSettings = {
   shopName: 'TrimTime',
+  location: '',
   currency: '$',
   language: 'en',
   whatsappEnabled: true,
@@ -721,7 +722,7 @@ export const TRANSLATIONS = {
     selectToResume: 'फिर से शुरू करने के लिए चुनें',
     saveSelect: 'सहेजें और चुनें',
     scanner: 'स्कैनर',
-    alignBarcode: 'बारकोड को क्षैतिज रूप से संरेखित करें',
+    alignBarcode: 'بارकोड को क्षैतिज रूप से संरेखित करें',
     unknownProduct: 'अज्ञात उत्पाद',
     itemNotCatalog: 'आइटम कैटलॉग में नहीं है। मैन्युअल खोज करें।',
     cameraPermission: 'कैमरा अनुमति अस्वीकार',

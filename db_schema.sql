@@ -27,7 +27,8 @@ create table shops (
   owner_id uuid references auth.users not null, -- Links to Supabase Auth User
   name text default 'My Barber Shop',
   subscription_status text default 'active', -- 'active', 'past_due', 'canceled'
-  stripe_customer_id text
+  stripe_customer_id text,
+  onboarding_completed boolean default false -- Tracks if user finished setup wizard
 );
 
 -- ==========================================
@@ -156,15 +157,16 @@ returns trigger as $$
 declare
   new_shop_id uuid;
 begin
-  -- 1. Create a Shop for the new user
-  insert into public.shops (owner_id, name) 
-  values (new.id, 'My Barber Shop') 
+  -- 1. Create a Shop for the new user (defaults to onboarding not completed)
+  insert into public.shops (owner_id, name, onboarding_completed) 
+  values (new.id, 'My Barber Shop', false) 
   returning id into new_shop_id;
 
   -- 2. Create Default Settings for that shop
   insert into public.settings (shop_id, data) 
   values (new_shop_id, '{
     "shopName": "TrimTime", 
+    "location": "",
     "currency": "$", 
     "language": "en", 
     "taxRate": 0, 

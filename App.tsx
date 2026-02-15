@@ -1,4 +1,5 @@
-import React, { useState, useEffect, ReactNode, ErrorInfo } from 'react';
+
+import React, { useState, useEffect, ReactNode, ErrorInfo, Component } from 'react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import POS from './components/POS';
@@ -10,6 +11,7 @@ import StaffManagement from './components/StaffManagement';
 import Login from './components/Login';
 import Paywall from './components/Paywall';
 import InstallBanner from './components/InstallBanner';
+import Onboarding from './components/Onboarding';
 import { View, Sale, Expense, Service, Product, Staff, Customer, ShopSettings, Language } from './types';
 import { INITIAL_SERVICES, INITIAL_PRODUCTS, INITIAL_STAFF, INITIAL_CUSTOMERS, DEFAULT_SETTINGS } from './constants';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,7 +26,7 @@ interface ErrorBoundaryState {
 }
 
 // Error Boundary to prevent white screens
-class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
@@ -67,6 +69,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<Staff | null>(null);
   const [subscriptionStatus, setSubscriptionStatus] = useState<string>('active');
+  const [isOnboarding, setIsOnboarding] = useState(false);
   const [isSessionLoading, setIsSessionLoading] = useState(true);
 
   const [currentView, setCurrentView] = useState<View>(View.DASHBOARD);
@@ -102,15 +105,18 @@ const App: React.FC = () => {
       try {
           setIsSessionLoading(true);
           
-          // 1. Fetch Shop & Subscription
+          // 1. Fetch Shop & Subscription & Onboarding Status
           const { data: shop, error: shopError } = await supabase
             .from('shops')
-            .select('id, subscription_status')
+            .select('id, subscription_status, onboarding_completed')
             .eq('owner_id', userId)
             .single();
             
           if (shop) {
              setSubscriptionStatus(shop.subscription_status || 'active');
+             
+             // Check onboarding status
+             setIsOnboarding(shop.onboarding_completed === false);
              
              // 2. Fetch Admin Profile
              // RLS ensures we only see staff for this shop
@@ -150,6 +156,7 @@ const App: React.FC = () => {
         } else if (event === 'SIGNED_OUT') {
             setCurrentUser(null);
             setSubscriptionStatus('active');
+            setIsOnboarding(false);
             setIsSessionLoading(false);
         }
     });
@@ -159,7 +166,7 @@ const App: React.FC = () => {
 
   // Fetch data only when authenticated
   useEffect(() => {
-    if (!currentUser) {
+    if (!currentUser || isOnboarding) {
         setLoading(false);
         return;
     }
@@ -217,7 +224,7 @@ const App: React.FC = () => {
       }
     };
     fetchData();
-  }, [currentUser]);
+  }, [currentUser, isOnboarding]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode);
@@ -439,8 +446,14 @@ const App: React.FC = () => {
 
   if (!currentUser) return <Login onLogin={handleLogin} staffList={staff} shopName={settings.shopName} />;
 
+  // Paywall Logic
   if (subscriptionStatus !== 'active' && subscriptionStatus !== 'trialing') {
       return <Paywall currentUser={currentUser} onSuccess={handleSubscriptionSuccess} shopName={settings.shopName} />;
+  }
+
+  // Onboarding Logic
+  if (isOnboarding && currentUser.role === 'admin') {
+      return <Onboarding currentUser={currentUser} initialSettings={settings} onComplete={() => { setIsOnboarding(false); window.location.reload(); }} />;
   }
 
   if (loading) return <div className="h-screen w-full flex items-center justify-center bg-slate-950"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-amber-500"></div></div>;

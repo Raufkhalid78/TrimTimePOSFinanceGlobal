@@ -22,6 +22,7 @@ export type Language = 'en' | 'ur' | 'fa' | 'hi';
 
 export interface ShopSettings {
   shopName: string;
+  location: string; // Added location field
   currency: string;
   language: Language;
   whatsappEnabled: boolean;
