@@ -44,6 +44,10 @@ const POS: React.FC<POSProps> = ({ services, products, staff, customers, setting
   const [newCustomerData, setNewCustomerData] = useState({ name: '', phone: '', email: '' });
   const [isScanning, setIsScanning] = useState(false);
   
+  // Payment states
+  const [paymentMode, setPaymentMode] = useState<'default' | 'cash'>('default');
+  const [cashReceived, setCashReceived] = useState<string>('');
+
   const feedbackTimeoutRef = useRef<number | null>(null);
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
   const isScannerActiveRef = useRef(false);
@@ -397,7 +401,7 @@ const POS: React.FC<POSProps> = ({ services, products, staff, customers, setting
     doc.save(`Receipt-${sale.id}.pdf`);
   };
 
-  const handleCheckout = (paymentMethod: 'cash' | 'card') => {
+  const handleCheckout = (paymentMethod: 'cash' | 'card' | 'wallet') => {
     if (cart.length === 0 || !selectedStaff) {
       alert(t.fillOrder);
       return;
@@ -428,6 +432,8 @@ const POS: React.FC<POSProps> = ({ services, products, staff, customers, setting
     setCart([]);
     setSelectedCustomer('');
     setDiscountCode('');
+    setPaymentMode('default');
+    setCashReceived('');
     if (currentUser.role !== 'employee') setSelectedStaff('');
     setShowMobileCart(false);
   };
@@ -453,6 +459,12 @@ const POS: React.FC<POSProps> = ({ services, products, staff, customers, setting
     if (activeTab === 'services') return services.filter(s => s.name.toLowerCase().includes(search) || s.category.toLowerCase().includes(search));
     return products.filter(p => p.name.toLowerCase().includes(search));
   }, [activeTab, services, products, searchTerm]);
+
+  // Cash change logic
+  const cashChange = useMemo(() => {
+      const received = parseFloat(cashReceived) || 0;
+      return received - totals.total;
+  }, [cashReceived, totals.total]);
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 h-full relative">
@@ -659,10 +671,38 @@ const POS: React.FC<POSProps> = ({ services, products, staff, customers, setting
                    <input value={discountCode} onChange={e => setDiscountCode(e.target.value.toUpperCase())} placeholder="PROMO" className="flex-1 bg-white dark:bg-slate-900 border-none rounded-xl px-4 py-3 text-xs font-black uppercase tracking-widest dark:text-white shadow-sm" />
                    <button onClick={handleHoldSale} className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95">{t.holdBill}</button>
                 </div>
-                <div className="grid grid-cols-2 gap-3 pb-4">
-                   <button onClick={() => handleCheckout('cash')} className="bg-slate-900 dark:bg-slate-950 text-white py-4 md:py-5 rounded-2xl font-black text-xs md:text-sm uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl active:scale-95">{t.cash}</button>
-                   <button onClick={() => handleCheckout('card')} className="bg-amber-500 text-slate-950 py-4 md:py-5 rounded-2xl font-black text-xs md:text-sm uppercase tracking-widest hover:bg-amber-400 transition-all shadow-xl active:scale-95">{t.card}</button>
-                </div>
+                
+                {paymentMode === 'cash' ? (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3 pb-4">
+                        <div>
+                            <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">{t.amountReceived}</label>
+                            <input 
+                                type="number" 
+                                value={cashReceived} 
+                                onChange={e => setCashReceived(e.target.value)} 
+                                autoFocus
+                                className="w-full bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-lg font-black dark:text-white focus:border-amber-500 outline-none"
+                                placeholder={totals.total.toFixed(2)}
+                            />
+                        </div>
+                        <div className="flex justify-between items-center p-3 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                            <span className="text-xs font-bold text-slate-500">{t.change}</span>
+                            <span className={`text-lg font-black ${cashChange < 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
+                                {settings.currency}{cashChange.toFixed(2)}
+                            </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 pt-2">
+                            <button onClick={() => { setPaymentMode('default'); setCashReceived(''); }} className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 py-3 rounded-xl font-bold text-xs uppercase tracking-widest">{t.cancel}</button>
+                            <button onClick={() => handleCheckout('cash')} className="bg-amber-500 text-slate-950 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg">{t.confirmPayment}</button>
+                        </div>
+                    </motion.div>
+                ) : (
+                    <div className="grid grid-cols-3 gap-2 pb-4">
+                        <button onClick={() => setPaymentMode('cash')} className="bg-emerald-500 text-white py-4 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-md active:scale-95">{t.cash}</button>
+                        <button onClick={() => handleCheckout('card')} className="bg-indigo-500 text-white py-4 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-md active:scale-95">{t.card}</button>
+                        <button onClick={() => handleCheckout('wallet')} className="bg-slate-800 text-white py-4 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest hover:bg-slate-700 transition-all shadow-md active:scale-95">{t.wallet}</button>
+                    </div>
+                )}
               </div>
             </motion.div>
           </>

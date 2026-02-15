@@ -91,7 +91,7 @@ create table sales (
   tax numeric default 0,
   discount numeric default 0,
   discount_code text,
-  payment_method text check (payment_method in ('cash', 'card')),
+  payment_method text check (payment_method in ('cash', 'card', 'wallet')),
   tax_type text check (tax_type in ('included', 'excluded')),
   customer_name text, 
   professional_name text

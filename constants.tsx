@@ -75,6 +75,7 @@ export const TRANSLATIONS = {
     total: 'Total',
     cash: 'Cash',
     card: 'Card',
+    wallet: 'Wallet',
     holdBill: 'Hold Bill',
     heldBills: 'Held Bills',
     resume: 'Resume',
@@ -107,6 +108,10 @@ export const TRANSLATIONS = {
     added: 'Added',
     fillOrder: 'Please add items and assign a professional.',
     discardBill: 'Discard this held bill?',
+    amountReceived: 'Amount Received',
+    change: 'Change',
+    confirmPayment: 'Confirm Payment',
+    cancel: 'Cancel',
 
     // Finance
     shopPerformance: 'Shop Performance',
@@ -277,6 +282,7 @@ export const TRANSLATIONS = {
     total: 'کل',
     cash: 'نقد',
     card: 'کارڈ',
+    wallet: 'والٹ',
     holdBill: 'بل ہولڈ کریں',
     heldBills: 'ہولڈ شدہ بل',
     resume: 'دوبارہ شروع کریں',
@@ -309,6 +315,10 @@ export const TRANSLATIONS = {
     added: 'شامل کیا گیا',
     fillOrder: 'براہ کرم اشیاء شامل کریں اور عملہ منتخب کریں۔',
     discardBill: 'کیا اس ہولڈ شدہ بل کو ختم کریں؟',
+    amountReceived: 'وصول شدہ رقم',
+    change: 'بقایا',
+    confirmPayment: 'ادائیگی کی تصدیق کریں',
+    cancel: 'منسوخ کریں',
 
     // Finance
     shopPerformance: 'دکان کی کارکردگی',
@@ -479,6 +489,7 @@ export const TRANSLATIONS = {
     total: 'مجموع',
     cash: 'نقد',
     card: 'کارت',
+    wallet: 'کیف پول',
     holdBill: 'تعلیق فاکتور',
     heldBills: 'فاکتورهای معلق',
     resume: 'ادامه',
@@ -511,6 +522,10 @@ export const TRANSLATIONS = {
     added: 'اضافه شد',
     fillOrder: 'لطفاً اقلام را اضافه کنید و یک متخصص تعیین کنید.',
     discardBill: 'این صورتحساب نگه داشته شده را دور بریزید؟',
+    amountReceived: 'مبلغ دریافتی',
+    change: 'باقی‌مانده',
+    confirmPayment: 'تایید پرداخت',
+    cancel: 'لغو',
 
     // Finance
     shopPerformance: 'عملکرد فروشگاه',
@@ -681,6 +696,7 @@ export const TRANSLATIONS = {
     total: 'कुल',
     cash: 'नकद',
     card: 'कार्ड',
+    wallet: 'वॉलेट',
     holdBill: 'बिल होल्ड करें',
     heldBills: 'होल्ड किए गए बिल',
     resume: 'फिर से शुरू करें',
@@ -713,6 +729,10 @@ export const TRANSLATIONS = {
     added: 'जोड़ा गया',
     fillOrder: 'कृपया सामान जोड़ें और एक पेशेवर चुनें।',
     discardBill: 'क्या इस होल्ड बिल को हटा दें?',
+    amountReceived: 'प्राप्त राशि',
+    change: 'छुट्टा',
+    confirmPayment: 'भुगतान की पुष्टि करें',
+    cancel: 'रद्द करें',
 
     // Finance
     shopPerformance: 'दुकान का प्रदर्शन',

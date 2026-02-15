@@ -97,7 +97,7 @@ export interface Sale {
   tax: number;
   discount: number;
   discountCode?: string;
-  paymentMethod: 'cash' | 'card';
+  paymentMethod: 'cash' | 'card' | 'wallet';
   taxType: 'included' | 'excluded';
   // Stored snapshots of names at time of sale
   staffName?: string;

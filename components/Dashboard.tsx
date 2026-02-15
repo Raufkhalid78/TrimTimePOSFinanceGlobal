@@ -55,6 +55,24 @@ const Dashboard: React.FC<DashboardProps> = ({ sales, expenses, products, curren
     return null;
   };
 
+  const getPaymentIcon = (method: string) => {
+      switch(method) {
+          case 'card': return '💳';
+          case 'cash': return '💵';
+          case 'wallet': return '📱';
+          default: return '💵';
+      }
+  };
+
+  const getPaymentColor = (method: string) => {
+      switch(method) {
+          case 'card': return 'bg-indigo-50 text-indigo-500 dark:bg-indigo-900/20';
+          case 'cash': return 'bg-emerald-50 text-emerald-500 dark:bg-emerald-900/20';
+          case 'wallet': return 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400';
+          default: return 'bg-emerald-50 text-emerald-500 dark:bg-emerald-900/20';
+      }
+  };
+
   return (
     <div className="space-y-6 md:space-y-8 max-w-[1600px] mx-auto pb-10">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -119,8 +137,8 @@ const Dashboard: React.FC<DashboardProps> = ({ sales, expenses, products, curren
             {sales.slice(-5).reverse().map((sale) => (
               <div key={sale.id} className="flex items-center justify-between group">
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${sale.paymentMethod === 'card' ? 'bg-indigo-50 text-indigo-500 dark:bg-indigo-900/20' : 'bg-emerald-50 text-emerald-500 dark:bg-emerald-900/20'}`}>
-                    {sale.paymentMethod === 'card' ? '💳' : '💵'}
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${getPaymentColor(sale.paymentMethod)}`}>
+                    {getPaymentIcon(sale.paymentMethod)}
                   </div>
                   <div>
                     <p className="text-xs font-bold text-slate-800 dark:text-slate-200">#{sale.id.slice(-4)}</p>

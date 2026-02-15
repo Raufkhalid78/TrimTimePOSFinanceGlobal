@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ReactNode, ErrorInfo, Component } from 'react';
+import React, { useState, useEffect, ReactNode, ErrorInfo } from 'react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import POS from './components/POS';
@@ -24,7 +24,7 @@ interface ErrorBoundaryState {
 }
 
 // Error Boundary to prevent white screens
-class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
